@@ -1,0 +1,29 @@
+{
+  "name": "oraisan-cosmos-contract-demo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Oraisan/Oraisan-Cosmos-Contract-Demo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Oraisan/Oraisan-Cosmos-Contract-Demo/issues"
+  },
+  "homepage": "https://github.com/Oraisan/Oraisan-Cosmos-Contract-Demo#readme",
+  "dependencies": {
+    "@cosmjs/cli": "^0.28.13",
+    "axios": "^1.4.0",
+    "circomlib": "^2.0.5",
+    "circomlibjs": "^0.1.7",
+    "cosmwasm": "^1.1.1",
+    "dotenv": "^16.0.3",
+    "fixed-merkle-tree": "git+https://github.com/lquochieu/fixed-merkle-tree.git"
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "body": {
+    "messages": [
+      {
+        "@type": "/cosmwasm.wasm.v1.MsgExecuteContract",
+        "sender": "orai1rm8ykdhp8w66wucm0xuezzsw0t43wxcj4j229a",
+        "contract": "orai1tz8slaya3493238lnjw539xqacq6usl5gzy3l4s76juthpwmu9aqnvpn7g",
+        "msg": {
+          "update_deposit_tree": {
+            "proof": [
+              "14213505298352319154787372119756817761543044156910229197310523028756696040509",
+              "43531605519012742890703671342786408754272933224012226075610889144845031668",
+              "717586062564953681755403534561569387599731219251867029598180869145396213052",
+              "8826490743515174713493782323479512559670475907840023020918923203263297871503",
+              "3097592429755413301960979223725620130170730723294463685238289116820397768055",
+              "6804446721905865024564962854105209939649992390120144380204108632401149823929",
+              "15597394601664653002472783978462327262200177394743023030593619591009606363029",
+              "7656294731591392456281173856648757671192158361080937309178832805691828042631"
+            ],
+            "root": "9057927520077263383505741483992308096905693117929100219575401361810961919863"
+          }
+        }
+      }
+    ],
+    "memo": "",
+    "timeout_height": "0",
+    "extension_options": [],
+    "non_critical_extension_options": []
+  },
+  "auth_info": {
+    "signer_infos": [
+      {
+        "public_key": {
+          "@type": "/cosmos.crypto.secp256k1.PubKey",
+          "key": "A+h+tb4tgxPXNZ/skQHM7XRhUYEkDN2hqOvvfCwfc8hY"
+        },
+        "mode_info": {
+          "single": {
+            "mode": "SIGN_MODE_LEGACY_AMINO_JSON"
+          }
+        },
+        "sequence": "39"
+      }
+    ],
+    "fee": {
+      "amount": [
+        {
+          "denom": "orai",
+          "amount": "182"
+        }
+      ],
+      "gas_limit": "181636",
+      "payer": "",
+      "granter": ""
+    }
+  },
+  "signatures": [
+    "XnRInZo3a0DntW/YyjTQlofHO/Esk4M8RMwqUx7YypclZf/ZGrcgpoqKkiCZQ47jK7OUD9FDSerNUkqLkERxkw=="
+  ]
+}
