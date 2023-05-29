@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { SigningCosmWasmClient, Secp256k1HdWallet, setupWebKeplr, coin, UploadResult, InstantiateResult, toBinary } from "cosmwasm";
 import { CosmWasmClient } from "cosmwasm";
 import * as dotenv from "dotenv";
@@ -9,7 +10,7 @@ import * as fs from "fs";
 
 dotenv.config();
 // This is your rpc endpoint
-const getTxAPI = "https://testnet-lcd.orai.io/cosmos/tx/v1beta1/txs/"
+const getTxAPI = "https://testnet-lcd.orai.io/cosmos/"
 
 const rpcEndpoint = "https://testnet-rpc.orai.io:443/";
 const chainID = "Oraichain-testnet"
@@ -19,70 +20,101 @@ let mimc;
 let F;
 let tree;
 
-function saveUpdateDepositTreeTxToJsonFile(path: string, data: any) {
-    let txMessages: any[] = [];
-    for (let i = 0; i < data.body.messages.length; i++) {
-        let txMessage = {
-            "@type": data.body.messages[i]["@type"],
-            sender: data.body.messages[i].sender,
-            contract: data.body.messages[i].contract,
-            msg: data.body.messages[i].msg
-        }
-        txMessages.push(txMessage)
-    }
+function writeToEnvFile(key: String, value: String) {
+    const envFilePath = '.env';
+    const envString = `${key}=${value}`;
 
-    let signer_infos: any[] = [];
-    for(let i = 0; i < data.auth_info.signer_infos.length; i++) {
-        let signer_info = {
-            public_key: {
-                "@type": data.auth_info.signer_infos[i].public_key["@type"],
-                key: data.auth_info.signer_infos[i].public_key.key
-            },
-            mode_info: {
-                single: {
-                    mode: data.auth_info.signer_infos[i].mode_info.single.mode
+    try {
+        if (fs.existsSync(envFilePath)) {
+            let data = fs.readFileSync(envFilePath, 'utf8');
+            const lines = data.trim().split('\n');
+            let keyExists = false;
+            const updatedLines = lines.map(line => {
+                const [existingKey] = line.split('=');
+                if (existingKey === key) {
+                    keyExists = true;
+                    return envString;
                 }
-            },
-            sequence: data.auth_info.signer_infos[i].sequence
-        }
-        signer_infos.push(signer_info)
-    }
-
-    let amount: any[] = [];
-    for(let i = 0; i  < data.auth_info.fee.amount.length; i++) {
-        let a = {
-            denom: data.auth_info.fee.amount[i].denom,
-            amount: data.auth_info.fee.amount[i].amount
-        }
-        amount.push(a);
-    }
-
-    let signatures: any[] = [];
-    for(let i = 0; i < data.signatures.length; i++){
-        let signature = data.signatures[i];
-        signatures.push(signature)
-    }
-
-    let txData = {
-        body: {
-            messages: txMessages,
-            memo: data.body.memo,
-            timeout_height: data.body.timeout_height,
-            extension_options: data.body.extension_options,
-            non_critical_extension_options: data.body.non_critical_extension_options
-        },
-        auth_info: {
-            signer_infos: signer_infos,
-            fee: {
-                amount: amount,
-                gas_limit: data.auth_info.fee.gas_limit,
-                payer: data.auth_info.fee.payer,
-                granter: data.auth_info.fee.granter
+                return line;
+            });
+            if (!keyExists) {
+                updatedLines.push(envString);
             }
-        },
-        signatures: signatures
+            const updatedData = updatedLines.join('\n');
+            fs.writeFileSync(envFilePath, updatedData + '\n');
+        } else {
+            fs.writeFileSync(envFilePath, envString + '\n');
+        }
+        console.log('Successfully wrote to .env file.');
+    } catch (err) {
+        console.error('Error writing to .env file:', err);
     }
-    const jsonData = JSON.stringify(txData, null, 2);
+}
+
+function saveUpdateDepositTreeTxToJsonFile(path: string, data: any) {
+    // let txMessages: any[] = [];
+    // for (let i = 0; i < data.body.messages.length; i++) {
+    //     let txMessage = {
+    //         "@type": data.body.messages[i]["@type"],
+    //         sender: data.body.messages[i].sender,
+    //         contract: data.body.messages[i].contract,
+    //         msg: data.body.messages[i].msg
+    //     }
+    //     txMessages.push(txMessage)
+    // }
+
+    // let signer_infos: any[] = [];
+    // for(let i = 0; i < data.auth_info.signer_infos.length; i++) {
+    //     let signer_info = {
+    //         public_key: {
+    //             "@type": data.auth_info.signer_infos[i].public_key["@type"],
+    //             key: data.auth_info.signer_infos[i].public_key.key
+    //         },
+    //         mode_info: {
+    //             single: {
+    //                 mode: data.auth_info.signer_infos[i].mode_info.single.mode
+    //             }
+    //         },
+    //         sequence: data.auth_info.signer_infos[i].sequence
+    //     }
+    //     signer_infos.push(signer_info)
+    // }
+
+    // let amount: any[] = [];
+    // for(let i = 0; i  < data.auth_info.fee.amount.length; i++) {
+    //     let a = {
+    //         denom: data.auth_info.fee.amount[i].denom,
+    //         amount: data.auth_info.fee.amount[i].amount
+    //     }
+    //     amount.push(a);
+    // }
+
+    // let signatures: any[] = [];
+    // for(let i = 0; i < data.signatures.length; i++){
+    //     let signature = data.signatures[i];
+    //     signatures.push(signature)
+    // }
+
+    // let txData = {
+    //     body: {
+    //         messages: txMessages,
+    //         memo: data.body.memo,
+    //         timeout_height: data.body.timeout_height,
+    //         extension_options: data.body.extension_options,
+    //         non_critical_extension_options: data.body.non_critical_extension_options
+    //     },
+    //     auth_info: {
+    //         signer_infos: signer_infos,
+    //         fee: {
+    //             amount: amount,
+    //             gas_limit: data.auth_info.fee.gas_limit,
+    //             payer: data.auth_info.fee.payer,
+    //             granter: data.auth_info.fee.granter
+    //         }
+    //     },
+    //     signatures: signatures
+    // }
+    const jsonData = JSON.stringify(data, null, 2);
     fs.writeFileSync(path, jsonData, 'utf-8');
     console.log('Data has been saved to file:', path);
 }
@@ -118,8 +150,8 @@ function getInputUpdateDepositTree() {
 
     let msg = {
         update_deposit_tree: {
+            root: publicFile[publicFile.length - 1],
             proof: proof,
-            root: publicFile[publicFile.length - 1]
         }
     }
     return msg
@@ -191,7 +223,7 @@ async function instantiate(codeID: number): Promise<InstantiateResult> {
     return res;
 }
 
-async function sendToken() {
+async function sendToken(amount: String) {
     // const query = await client.getTx("2D925C0F81EF1E26662B0A2A9277180CE853F9F07C60CA2F3E64E7F565A19F78")
     const wallet = await getWallet();
     const client = await getClient();
@@ -199,14 +231,14 @@ async function sendToken() {
     const senderAddress = (await wallet.getAccounts())[0].address;
     const contractAddress = process.env.COSMOS_TOKEN_ADDRESS || "";
     const msg_bridge = {
-        eth_bridge_address: "0xde408146A0a44cC991C6CA8A1C9b25117dBAB295",
-        eth_receiver: "0xde408146A0a44cC991C6CA8A1C9b25117dBAB295",
-        value: "18539826951787205610194887907986276477447506550846194052226129002679495754830"
+        eth_bridge_address: "0x66EeCaf1D881F7D828224422387b6fe0359AA69f",
+        eth_receiver: "0x72e03B6E7AB9DdFe1699B65B8A46A3Cf30092020",
+        value: "18712246956963994472991080367043956350605353057166171035306250565298571161961"
     }
     const msg = {
         send: {
             contract: process.env.COSMOS_BRIDGE_ADDRESS || "",
-            amount: "10",
+            amount: amount,
             msg: toBinary(msg_bridge)
         }
     }
@@ -289,9 +321,9 @@ async function QueryDepositQueue() {
 async function QueryTxByHash(txHash: string): Promise<any> {
     // console.log(resInitiate)
     // console.log(wasmCode)
-    let res = await axios.get(getTxAPI + txHash).then(function (response) {
+    let res = await axios.get(getTxAPI + "tx/v1beta1/txs/" + txHash).then(function (response: any) {
         // handle success
-        return response.data.tx
+        return {tx: response.data.tx, height: response.data.tx_response.height}
         // console.dir(response.data.tx, { depth: null });
     })
         .catch(function (error) {
@@ -304,11 +336,29 @@ async function QueryTxByHash(txHash: string): Promise<any> {
 
     return res
 }
+
+async function QueryBlockHeaderByHeight(height: string): Promise<any> {
+    let res = await axios.get(getTxAPI + "tx/v1beta1/txs/block/" + height).then(function (response: any) {
+        // handle success
+        return {header: response.data.block.header, txs: response.data.block.data.txs}
+        // console.dir(response.data.tx, { depth: null });
+    })
+        .catch(function (error) {
+            // handle error
+            console.log(error);
+        })
+        .finally(function () {
+            // always executed
+        });
+
+    return res
+}
+
 async function main() {
     // const resUpload = await Upload("./artifacts/oraisan_cosmos_contract_demo.wasm");
     // const resInitiate = await instantiate(resUpload.codeId);
-    // console.log(resInitiate)
-    // const resSendToken = await sendToken();
+    // writeToEnvFile("COSMOS_BRIDGE_ADDRESS", resInitiate.contractAddress)
+    // const resSendToken = await sendToken("10");
     // console.log("sendtoken", resSendToken)
     // const resDepositTree = await QueryDepositTree();
     // console.log("depositTree", resDepositTree);
@@ -316,11 +366,14 @@ async function main() {
     // const resDepositQueue = await QueryDepositQueue();
     // console.log(resDepositQueue);
 
-    // const resUpdate = await updateDepositTree();
-    // console.log(resUpdate);
+    const resUpdate = await updateDepositTree();
+    console.log(resUpdate);
 
-    const resQueryDepositRootTx = await QueryTxByHash("B3AC71DC9B1D48CCAB919A143654E7D166AC683CF051CD1F201CFCA6F9466FB5");
+    const resQueryDepositRootTx = await QueryTxByHash(resUpdate.transactionHash);
     console.log(resQueryDepositRootTx);
-    saveUpdateDepositTreeTxToJsonFile("./scripts/proofDepositTree/tx_data.json", resQueryDepositRootTx);
+    saveUpdateDepositTreeTxToJsonFile("./scripts/proofDepositTree/tx_data.json", resQueryDepositRootTx.tx);
+    const resQueryBlock = await QueryBlockHeaderByHeight(resQueryDepositRootTx.height);
+    saveUpdateDepositTreeTxToJsonFile("./scripts/proofDepositTree/block.json", resQueryBlock);
+    console.log(resQueryBlock)
 }
 main();

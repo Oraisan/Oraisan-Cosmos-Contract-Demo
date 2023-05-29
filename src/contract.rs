@@ -52,7 +52,7 @@ pub fn execute(
     _msg: ExecuteMsg,
 ) -> Result<Response, ContractError> {
     match _msg {
-        ExecuteMsg::UpdateDepositTree {proof, root} => execute_update_deposit_tree(_deps, _env, _info, proof, root),
+        ExecuteMsg::UpdateDepositTree {root, proof} => execute_update_deposit_tree(_deps, _env, _info, root, proof),
         ExecuteMsg::Receive {
             sender,
             amount,
@@ -106,8 +106,8 @@ pub fn execute_update_deposit_tree(
     _deps: DepsMut,
     _env: Env,
     _info: MessageInfo,
-    proof: Vec<Uint256>,
     root: Uint256,
+    proof: Vec<Uint256>,
 ) -> Result<Response, ContractError> {
     
     let  default_value = Uint256::from_str("11730251359286723731141466095709901450170369094578288842486979042586033922425").unwrap();
@@ -116,8 +116,8 @@ pub fn execute_update_deposit_tree(
 
     let from = deposit_tree.n_leafs;
     let mut to = deposit_tree.nqueue_leafs;
-    if deposit_tree.nqueue_leafs > 10 {
-        to = 10;
+    if deposit_tree.nqueue_leafs > 5 {
+        to = 5;
     }
     let mut new_leafs: Vec<Uint256> = Vec::new();
 
@@ -138,8 +138,7 @@ pub fn execute_update_deposit_tree(
         if _i > deposit_tree.nqueue_leafs {
             break;
         }
-
-        let deposit_transaction =  DEPOSIT_QUEUE.load(_deps.storage, _i)?;
+        
         DEPOSIT_QUEUE.update(_deps.storage, _i, | queue| -> StdResult<_> {
             queue.clone().unwrap().is_deposit = true;
             Ok(queue.unwrap())
@@ -149,7 +148,7 @@ pub fn execute_update_deposit_tree(
     DEPOSIT_TREE.update(_deps.storage,|mut tree| -> StdResult<_> {
         tree.root = root;
         tree.n_leafs = key;
-        tree.nqueue_leafs = 0;
+        tree.nqueue_leafs = tree.nqueue_leafs.clone() - to;
         Ok(tree)
     })?;
 

@@ -23,8 +23,8 @@ pub enum ExecuteMsg {
         msg: Binary,
     },
     UpdateDepositTree {
-        proof: Vec<Uint256>,
         root: Uint256,
+        proof: Vec<Uint256>,
     },
 }
 
