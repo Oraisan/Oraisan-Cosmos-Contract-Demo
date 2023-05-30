@@ -232,8 +232,7 @@ async function sendToken(amount: String) {
     const contractAddress = process.env.COSMOS_TOKEN_ADDRESS || "";
     const msg_bridge = {
         eth_bridge_address: "0x66EeCaf1D881F7D828224422387b6fe0359AA69f",
-        eth_receiver: "0x72e03B6E7AB9DdFe1699B65B8A46A3Cf30092020",
-        value: "18712246956963994472991080367043956350605353057166171035306250565298571161961"
+        eth_receiver: "0x72e03B6E7AB9DdFe1699B65B8A46A3Cf30092020"
     }
     const msg = {
         send: {
@@ -359,21 +358,27 @@ async function main() {
     // const resInitiate = await instantiate(resUpload.codeId);
     // writeToEnvFile("COSMOS_BRIDGE_ADDRESS", resInitiate.contractAddress)
     // const resSendToken = await sendToken("10");
-    // console.log("sendtoken", resSendToken)
-    // const resDepositTree = await QueryDepositTree();
-    // console.log("depositTree", resDepositTree);
 
-    // const resDepositQueue = await QueryDepositQueue();
-    // console.log(resDepositQueue);
+    // console.log("sendtoken 0", resSendToken)
+    // const resSendToken1 = await sendToken("10");
+    // console.log("sendtoken 1", resSendToken1)
+    // const resSendToken2 = await sendToken("10");
+    // console.log("sendtoken 2", resSendToken2)
 
-    const resUpdate = await updateDepositTree();
-    console.log(resUpdate);
+    const resDepositTree = await QueryDepositTree();
+    console.log("depositTree", resDepositTree);
 
-    const resQueryDepositRootTx = await QueryTxByHash(resUpdate.transactionHash);
-    console.log(resQueryDepositRootTx);
-    saveUpdateDepositTreeTxToJsonFile("./scripts/proofDepositTree/tx_data.json", resQueryDepositRootTx.tx);
-    const resQueryBlock = await QueryBlockHeaderByHeight(resQueryDepositRootTx.height);
-    saveUpdateDepositTreeTxToJsonFile("./scripts/proofDepositTree/block.json", resQueryBlock);
-    console.log(resQueryBlock)
+    const resDepositQueue = await QueryDepositQueue();
+    console.log(resDepositQueue);
+
+    // const resUpdate = await updateDepositTree();
+    // console.log(resUpdate);
+
+    // const resQueryDepositRootTx = await QueryTxByHash(resUpdate.transactionHash);
+    // console.log(resQueryDepositRootTx);
+    // saveUpdateDepositTreeTxToJsonFile("./scripts/proofDepositTree/tx_data.json", resQueryDepositRootTx.tx);
+    // const resQueryBlock = await QueryBlockHeaderByHeight(resQueryDepositRootTx.height);
+    // saveUpdateDepositTreeTxToJsonFile("./scripts/proofDepositTree/block.json", resQueryBlock);
+    // console.log(resQueryBlock)
 }
 main();

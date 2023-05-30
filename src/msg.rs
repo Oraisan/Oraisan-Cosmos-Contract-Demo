@@ -11,8 +11,7 @@ pub struct InstantiateMsg {
 #[cw_serde]
 pub struct DepositInfo {
     pub eth_bridge_address: String,
-    pub eth_receiver: String,
-    pub value: Uint256
+    pub eth_receiver: String
 }
 
 #[cw_serde]

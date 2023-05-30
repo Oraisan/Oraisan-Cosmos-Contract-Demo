@@ -1,6 +1,6 @@
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
-use cosmwasm_std::{Binary, to_binary, from_binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult, Uint128, Uint256};
+use cosmwasm_std::{Binary, to_binary, from_binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult, Uint128, Uint256, Addr};
 use std::vec::Vec;
 use std::str::FromStr;
 use cw2::set_contract_version;
@@ -88,7 +88,7 @@ pub fn execute_receive(
         amount: amount,
         cosmos_token_address: _info.sender,
         key: key,
-        value: deposit_info.value,
+        value: Uint256::zero(),
     })?;
 
 
@@ -112,24 +112,31 @@ pub fn execute_update_deposit_tree(
     
     let  default_value = Uint256::from_str("11730251359286723731141466095709901450170369094578288842486979042586033922425").unwrap();
     let  deposit_tree = DEPOSIT_TREE.load(_deps.storage)?;
-    let  key = deposit_tree.n_leafs + deposit_tree.nqueue_leafs;
 
-    let from = deposit_tree.n_leafs;
-    let mut to = deposit_tree.nqueue_leafs;
-    if deposit_tree.nqueue_leafs > 5 {
+    let from = deposit_tree.n_leafs.clone();
+    let mut to = deposit_tree.nqueue_leafs.clone();
+    if to > 5 {
         to = 5;
     }
     let mut new_leafs: Vec<Uint256> = Vec::new();
 
 
-    for _i in from..to {
-        if _i > deposit_tree.nqueue_leafs {
+    for _i in from..5 {
+        if _i > to {
             new_leafs.push(default_value);
             continue;
         }
 
-        let deposit_transaction =  DEPOSIT_QUEUE.load(_deps.storage, _i)?;
-        new_leafs.push(deposit_transaction.value);
+        let deposit_transaction =  DEPOSIT_QUEUE.load(_deps.storage, _i)?.clone();
+        let deposit_value = calculateDepositValue(
+            deposit_transaction.eth_bridge_address, 
+            deposit_transaction.eth_receiver, 
+            deposit_transaction.amount, 
+            deposit_transaction.cosmos_token_address, 
+            deposit_transaction.key
+        );
+
+        new_leafs.push(deposit_value);
     }
 
     assert!(verifyNewDepositTree(proof, root, new_leafs, deposit_tree.n_leafs));
@@ -147,12 +154,22 @@ pub fn execute_update_deposit_tree(
     
     DEPOSIT_TREE.update(_deps.storage,|mut tree| -> StdResult<_> {
         tree.root = root;
-        tree.n_leafs = key;
+        tree.n_leafs = from + to ;
         tree.nqueue_leafs = tree.nqueue_leafs.clone() - to;
         Ok(tree)
     })?;
-
+    
     Ok(Response::default())
+}
+
+pub fn calculateDepositValue(
+    eth_bridge_address: String,
+    eth_receiver: String,
+    amount: Uint128,
+    cosmos_token_address: Addr,
+    key: u64
+) -> Uint256 {
+    return Uint256::from_str("11730251359286723731141466095709901450170369094578288842486979042586033922425").unwrap();
 }
 
 pub fn verifyNewDepositTree(
