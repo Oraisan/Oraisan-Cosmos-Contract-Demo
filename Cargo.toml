@@ -48,19 +48,32 @@ cw2 = "1.0.1"
 cw20 = { path = "packages/cw20", version = "1.0.1" }
 schemars = "0.8.10"
 thiserror = { version = "1.0.31" }
-ff = {package="ff_ce", version="0.11", features = ["derive"]}
+# ff = {package="ff_ce", version="0.13.1", features = ["derive"]}
 rand = "0.4"
 num = "0.2.0"
-num-bigint = "0.2.2"
+bigint = "4.4.3"
 tiny-keccak = "1.5"
-arkworks-mimc = { version = "0.3.0", features = ["mimc-7-91-bn254"] }
-ark-bn254 = { version = "^0.3.0", default-features = false, features = ["curve"] }
-ark-ff = { version = "^0.3.0", default-features = false }
-ark-groth16 = { version = "^0.3.0", default-features = false }
 
 serde = { version = "1.0.103", default-features = false, features = ["derive"] }
 # serde_json = { version = "1.0.48",  default-features = false, features = ["float_roundtrip"] }
 serde_json = { package="serde-json-wasm", version="0.4.0"}
+bech32 = "0.8.1"
+sha2 = "0.9"
+hex = "0.4"
+
+ark-ff = { version = "^0.3.0", default-features = false }
+ark-std = { version = "^0.3.0", default-features = false }
+ark-bn254 = { version = "^0.3.0", default-features = false, features = ["curve"] }
+ark-bls12-381 = { version = "^0.3.0", default-features = false, features = ["curve"] }
+ark-bls12-377 = { version = "^0.3.0", default-features = false, features = ["curve", "r1cs"], optional = true }
+ark-crypto-primitives = { version = "^0.3.0", features = ["r1cs"], default-features = false }
+
+arkworks-setups = { version = "0.5.3", default-features = false }
+arkworks-native-gadgets = { version = "0.5.3", default-features = false }
+
+ark-ec = { version = "^0.3.0", default-features = false }
+ark-groth16 = { version = "^0.3.0", default-features = false }
+ark-serialize = { version = "^0.3.0", default-features = false }
 
 [dev-dependencies]
 cw-multi-test = "0.16.2"

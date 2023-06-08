@@ -5,6 +5,8 @@ import * as dotenv from "dotenv";
 import { Decimal } from "@cosmjs/math";
 import axios from 'axios';
 import * as fs from "fs";
+import { BigNumber } from 'bignumber.js';
+
 // import MerkleTree from "fixed-merkle-tree";
 // import { buildMimc7 } from "circomlibjs";
 
@@ -19,6 +21,18 @@ const mnemonic = process.env.MNEMONIC!;
 let mimc;
 let F;
 let tree;
+
+function hexToDecimal(hex: string): string {
+    // Remove the '0x' prefix if present
+    if (hex.startsWith('0x')) {
+        hex = hex.slice(2);
+    }
+
+    // Convert the hexadecimal string to a decimal string
+    const decimalString = BigInt(`0x${hex}`).toString();
+
+    return decimalString;
+}
 
 function writeToEnvFile(key: String, value: String) {
     const envFilePath = '.env';
@@ -140,7 +154,7 @@ function getInputUpdateDepositTree() {
         proof.push(proofFile.pi_a[i]);
     }
     for (let i = 0; i < 2; i++) {
-        for (let j = 1; j >= 0; j--) {
+        for (let j = 0; j < 2; j++) {
             proof.push(proofFile.pi_b[i][j]);
         }
     }
@@ -204,8 +218,8 @@ async function instantiate(codeID: number): Promise<InstantiateResult> {
     const senderAddress = (await wallet.getAccounts())[0].address;
 
     const msg = {
-        token_address: process.env.COSMOS_TOKEN_ADDRESS,
-        root: "19650381120764303012524736994073988891758455017340428694151271035030351959738"
+        token_address: process.env.COSMOS_TOKEN,
+        root: "11725352275130973532665246471810130191684985477615997572384835458693213713650"
 
     }
     const label = "Test ew20"
@@ -229,19 +243,21 @@ async function sendToken(amount: String) {
     const client = await getClient();
 
     const senderAddress = (await wallet.getAccounts())[0].address;
-    const contractAddress = process.env.COSMOS_TOKEN_ADDRESS || "";
+    const contractAddress = process.env.COSMOS_TOKEN || "";
     const msg_bridge = {
-        eth_bridge_address: "0x66EeCaf1D881F7D828224422387b6fe0359AA69f",
-        eth_receiver: "0x72e03B6E7AB9DdFe1699B65B8A46A3Cf30092020"
+        destination_chainid: 97,
+        eth_bridge_address: hexToDecimal("0x66EeCaf1D881F7D828224422387b6fe0359AA69f"),
+        eth_receiver: hexToDecimal("0x72e03B6E7AB9DdFe1699B65B8A46A3Cf30092020")
     }
+    console.log("msg", msg_bridge);
+    console.log("binary", toBinary(msg_bridge));
     const msg = {
         send: {
-            contract: process.env.COSMOS_BRIDGE_ADDRESS || "",
+            contract: process.env.COSMOS_BRIDGE || "",
             amount: amount,
             msg: toBinary(msg_bridge)
         }
     }
-    console.log("msg", msg);
     const fee = "auto"
     const memo: any = null
     const res = await client.execute(senderAddress, contractAddress, msg, fee, memo)
@@ -250,13 +266,35 @@ async function sendToken(amount: String) {
 
 }
 
+async function supportTokenPair() {
+    // const query = await client.getTx("2D925C0F81EF1E26662B0A2A9277180CE853F9F07C60CA2F3E64E7F565A19F78")
+    const wallet = await getWallet();
+    const client = await getClient();
+
+    const senderAddress = (await wallet.getAccounts())[0].address;
+    const contractAddress = process.env.COSMOS_BRIDGE || "";
+    const msg = {
+        support_token_pair: {
+            destination_chainid: 97,
+            cosmos_token_address: process.env.COSMOS_TOKEN,
+            eth_token_address: hexToDecimal(process.env.ETH_TOKEN)
+        }
+    };
+    console.log("msg", msg);
+    const fee = "auto"
+    const memo: any = null
+    const res = await client.execute(senderAddress, contractAddress, msg, fee, memo)
+    console.log(res)
+    return res;
+}
+
 async function updateDepositTree() {
     // const query = await client.getTx("2D925C0F81EF1E26662B0A2A9277180CE853F9F07C60CA2F3E64E7F565A19F78")
     const wallet = await getWallet();
     const client = await getClient();
 
     const senderAddress = (await wallet.getAccounts())[0].address;
-    const contractAddress = process.env.COSMOS_BRIDGE_ADDRESS || "";
+    const contractAddress = process.env.COSMOS_BRIDGE || "";
     const msg = getInputUpdateDepositTree();
     console.log("msg", msg);
     const fee = "auto"
@@ -294,11 +332,26 @@ async function updateDepositTree() {
 //     return pathElements;
 // }
 
+async function QueryTokenPair() {
+    // const query = await client.getTx("2D925C0F81EF1E26662B0A2A9277180CE853F9F07C60CA2F3E64E7F565A19F78")
+    const client = await getClient();
+
+    const contract_address = process.env.COSMOS_BRIDGE || "";
+    const query_message = {
+        token_pair: {
+            destination_chainid: 97,
+            cosmos_token_address: process.env.COSMOS_TOKEN
+        }
+    }
+    const res = await client.queryContractSmart(contract_address, query_message)
+    return res
+}
+
 async function QueryDepositTree() {
     // const query = await client.getTx("2D925C0F81EF1E26662B0A2A9277180CE853F9F07C60CA2F3E64E7F565A19F78")
     const client = await getClient();
 
-    const contract_address = process.env.COSMOS_BRIDGE_ADDRESS || "";
+    const contract_address = process.env.COSMOS_BRIDGE || "";
     const query_message = {
         deposit_tree: {}
     }
@@ -308,7 +361,7 @@ async function QueryDepositTree() {
 async function QueryDepositQueue() {
     const client = await getClient();
 
-    const contract_address = process.env.COSMOS_BRIDGE_ADDRESS || "";
+    const contract_address = process.env.COSMOS_BRIDGE || "";
     const query_message = {
         deposit_queue: {}
     }
@@ -322,7 +375,7 @@ async function QueryTxByHash(txHash: string): Promise<any> {
     // console.log(wasmCode)
     let res = await axios.get(getTxAPI + "tx/v1beta1/txs/" + txHash).then(function (response: any) {
         // handle success
-        return {tx: response.data.tx, height: response.data.tx_response.height}
+        return { tx: response.data.tx, height: response.data.tx_response.height }
         // console.dir(response.data.tx, { depth: null });
     })
         .catch(function (error) {
@@ -339,7 +392,7 @@ async function QueryTxByHash(txHash: string): Promise<any> {
 async function QueryBlockHeaderByHeight(height: string): Promise<any> {
     let res = await axios.get(getTxAPI + "tx/v1beta1/txs/block/" + height).then(function (response: any) {
         // handle success
-        return {header: response.data.block.header, txs: response.data.block.data.txs}
+        return { header: response.data.block.header, txs: response.data.block.data.txs }
         // console.dir(response.data.tx, { depth: null });
     })
         .catch(function (error) {
@@ -353,32 +406,50 @@ async function QueryBlockHeaderByHeight(height: string): Promise<any> {
     return res
 }
 
-async function main() {
-    // const resUpload = await Upload("./artifacts/oraisan_cosmos_contract_demo.wasm");
-    // const resInitiate = await instantiate(resUpload.codeId);
-    // writeToEnvFile("COSMOS_BRIDGE_ADDRESS", resInitiate.contractAddress)
-    // const resSendToken = await sendToken("10");
+function saveJsonData(path: string, data: any) {
+    const jsonData = JSON.stringify(data, null, 2);
+    fs.writeFileSync(path, jsonData, 'utf-8');
+    console.log('Data has been saved to file:', path);
+}
 
+async function main() {
+    const resUpload = await Upload("./artifacts/oraisan_cosmos_contract_demo.wasm");
+    const resInitiate = await instantiate(resUpload.codeId);
+    writeToEnvFile("COSMOS_BRIDGE", resInitiate.contractAddress)
+
+    // const resSupportTokenPair = await supportTokenPair();
+    // console.log(resSupportTokenPair);
+
+    // const resQueryTokenPair = await QueryTokenPair();
+    // console.log(resQueryTokenPair);
+
+    // const resSendToken = await sendToken("10");
     // console.log("sendtoken 0", resSendToken)
+
     // const resSendToken1 = await sendToken("10");
     // console.log("sendtoken 1", resSendToken1)
+
     // const resSendToken2 = await sendToken("10");
     // console.log("sendtoken 2", resSendToken2)
 
     const resDepositTree = await QueryDepositTree();
     console.log("depositTree", resDepositTree);
-
+    saveJsonData("./scripts/proofDepositTree/deposit_tree.json", resDepositTree);
     const resDepositQueue = await QueryDepositQueue();
     console.log(resDepositQueue);
+    for(let i = 0; i < resDepositQueue.length; i++) {
+        saveJsonData("./scripts/proofDepositTree/deposit"+ i + ".json", resDepositQueue[i])
+    }
 
-    // const resUpdate = await updateDepositTree();
-    // console.log(resUpdate);
+    const resUpdate = await updateDepositTree();
+    console.log(resUpdate);
+    writeToEnvFile("TX_HASH", resUpdate.transactionHash)
 
-    // const resQueryDepositRootTx = await QueryTxByHash(resUpdate.transactionHash);
-    // console.log(resQueryDepositRootTx);
-    // saveUpdateDepositTreeTxToJsonFile("./scripts/proofDepositTree/tx_data.json", resQueryDepositRootTx.tx);
-    // const resQueryBlock = await QueryBlockHeaderByHeight(resQueryDepositRootTx.height);
-    // saveUpdateDepositTreeTxToJsonFile("./scripts/proofDepositTree/block.json", resQueryBlock);
-    // console.log(resQueryBlock)
+    const resQueryDepositRootTx = await QueryTxByHash(resUpdate.transactionHash);
+    console.log(resQueryDepositRootTx);
+    saveUpdateDepositTreeTxToJsonFile("./scripts/proofDepositTree/tx_data.json", resQueryDepositRootTx.tx);
+    const resQueryBlock = await QueryBlockHeaderByHeight(resQueryDepositRootTx.height);
+    saveUpdateDepositTreeTxToJsonFile("./scripts/proofDepositTree/block.json", resQueryBlock);
+    console.log(resQueryBlock)
 }
 main();

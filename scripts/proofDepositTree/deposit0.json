@@ -1,0 +1,12 @@
+{
+  "is_deposit": false,
+  "sender": "orai1rm8ykdhp8w66wucm0xuezzsw0t43wxcj4j229a",
+  "destination_chainid": 97,
+  "eth_bridge_address": "587642314958878643560627341163159426040011073183",
+  "eth_receiver": "655825492017449793452124397016956580461783097376",
+  "amount": "10",
+  "eth_token_address": "1319061186842128966203187681337397035350251722050",
+  "cosmos_token_address": "orai1wdd0qs5f2swxh2trmdvu2xu94qu49zpnqpmazj02ts2xkhqu3x4qu3smud",
+  "key": 0,
+  "value": "13716445071024716967073433349859862284231470143140656473789416760837513504631"
+}

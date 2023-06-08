@@ -9,6 +9,9 @@ pub enum ContractError {
     #[error("Name has been taken (name {contract})")]
     TokenLock { contract: Addr },
 
+    #[error("Invalid Addr (name {contract})")]
+    ConvertAddr { contract: Addr },
+
     #[error("Unauthorized")]
     Unauthorized {},
     // Add any other custom errors you like here.
