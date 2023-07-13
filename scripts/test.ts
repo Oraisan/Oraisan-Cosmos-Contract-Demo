@@ -432,24 +432,24 @@ async function main() {
     // const resSendToken2 = await sendToken("10");
     // console.log("sendtoken 2", resSendToken2)
 
-    const resDepositTree = await QueryDepositTree();
-    console.log("depositTree", resDepositTree);
-    saveJsonData("./scripts/proofDepositTree/deposit_tree.json", resDepositTree);
-    const resDepositQueue = await QueryDepositQueue();
-    console.log(resDepositQueue);
-    for(let i = 0; i < resDepositQueue.length; i++) {
-        saveJsonData("./scripts/proofDepositTree/deposit"+ i + ".json", resDepositQueue[i])
-    }
+    // const resDepositTree = await QueryDepositTree();
+    // console.log("depositTree", resDepositTree);
+    // saveJsonData("./scripts/proofDepositTree/deposit_tree.json", resDepositTree);
+    // const resDepositQueue = await QueryDepositQueue();
+    // console.log(resDepositQueue);
+    // for(let i = 0; i < resDepositQueue.length; i++) {
+    //     saveJsonData("./scripts/proofDepositTree/deposit"+ i + ".json", resDepositQueue[i])
+    // }
 
-    const resUpdate = await updateDepositTree();
-    console.log(resUpdate);
-    writeToEnvFile("TX_HASH", resUpdate.transactionHash)
+    // const resUpdate = await updateDepositTree();
+    // console.log(resUpdate);
+    // writeToEnvFile("TX_HASH", resUpdate.transactionHash)
 
-    const resQueryDepositRootTx = await QueryTxByHash(resUpdate.transactionHash);
-    console.log(resQueryDepositRootTx);
-    saveUpdateDepositTreeTxToJsonFile("./scripts/proofDepositTree/tx_data.json", resQueryDepositRootTx.tx);
-    const resQueryBlock = await QueryBlockHeaderByHeight(resQueryDepositRootTx.height);
-    saveUpdateDepositTreeTxToJsonFile("./scripts/proofDepositTree/block.json", resQueryBlock);
-    console.log(resQueryBlock)
+    // const resQueryDepositRootTx = await QueryTxByHash(resUpdate.transactionHash);
+    // console.log(resQueryDepositRootTx);
+    // saveUpdateDepositTreeTxToJsonFile("./scripts/proofDepositTree/tx_data.json", resQueryDepositRootTx.tx);
+    // const resQueryBlock = await QueryBlockHeaderByHeight(resQueryDepositRootTx.height);
+    // saveUpdateDepositTreeTxToJsonFile("./scripts/proofDepositTree/block.json", resQueryBlock);
+    // console.log(resQueryBlock)
 }
 main();
