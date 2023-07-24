@@ -245,9 +245,9 @@ async function sendToken(amount: String) {
     const senderAddress = (await wallet.getAccounts())[0].address;
     const contractAddress = process.env.COSMOS_TOKEN || "";
     const msg_bridge = {
-        destination_chainid: 97,
-        eth_bridge_address: hexToDecimal("0x66EeCaf1D881F7D828224422387b6fe0359AA69f"),
-        eth_receiver: hexToDecimal("0x72e03B6E7AB9DdFe1699B65B8A46A3Cf30092020")
+        destination_chainid: Number(process.env.ETH_CHAIN_ID),
+        eth_bridge_address: hexToDecimal(process.env.ORAISAN_BRIDGE) || "",
+        eth_receiver: hexToDecimal(process.env.ETH_RECEIVER)
     }
     console.log("msg", msg_bridge);
     console.log("binary", toBinary(msg_bridge));
@@ -275,7 +275,7 @@ async function supportTokenPair() {
     const contractAddress = process.env.COSMOS_BRIDGE || "";
     const msg = {
         support_token_pair: {
-            destination_chainid: 97,
+            destination_chainid: Number(process.env.ETH_CHAIN_ID),
             cosmos_token_address: process.env.COSMOS_TOKEN,
             eth_token_address: hexToDecimal(process.env.ETH_TOKEN)
         }
@@ -339,7 +339,7 @@ async function QueryTokenPair() {
     const contract_address = process.env.COSMOS_BRIDGE || "";
     const query_message = {
         token_pair: {
-            destination_chainid: 97,
+            destination_chainid: Number(process.env.ETH_CHAIN_ID),
             cosmos_token_address: process.env.COSMOS_TOKEN
         }
     }
