@@ -21,10 +21,7 @@
     "@cosmjs/cli": "^0.28.13",
     "axios": "^1.4.0",
     "bignumber.js": "^9.1.1",
-    "circomlib": "^2.0.5",
-    "circomlibjs": "^0.1.7",
     "cosmwasm": "^1.1.1",
-    "dotenv": "^16.0.3",
-    "fixed-merkle-tree": "git+https://github.com/lquochieu/fixed-merkle-tree.git"
+    "dotenv": "^16.0.3"
   }
 }

@@ -34,7 +34,7 @@ pub enum ExecuteMsg {
     },
     UpdateDepositTree {
         root: String,
-        proof: Vec<Uint256>,
+        proof: Vec<Uint256>, 
     },
     Withdraw {
         receiver: Addr,
